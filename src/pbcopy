@@ -1,0 +1,22 @@
+use std::io;
+
+fn main() {
+    println!("Add your todos here!");
+
+    let mut todos = vec![];
+    
+    loop {
+        println!("either ADD [todo] or COMPLETE [index]");
+
+        let mut input = String::new();
+
+        io::stdin().read_line(&mut input).expect("Failed to read line.");
+        
+        let split_string: Vec<&str> = match input.trim().parse() {
+            Ok(str) => str.split_whitespace(),
+            Err(_) => continue,
+        };
+
+
+    }
+}
