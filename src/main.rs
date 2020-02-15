@@ -1,5 +1,23 @@
 use std::io;
 
+fn list_todos(todos: &Vec<String>) {
+    for (idx, todo) in todos.iter().enumerate() {
+        println!("{}: {}", idx + 1, todo);
+    }
+}
+
+fn add_todo(todos: &mut Vec<String>, string_vec: &Vec<&str>) {
+    let new_todo = string_vec[1..].join(" ").trim().to_string();
+    todos.push(new_todo);
+}
+
+fn complete_todo(todos: &mut Vec<String>, idx: Result<usize, std::num::ParseIntError>) -> &mut Vec<String> {
+    match idx {
+        Ok(i) => { todos.remove(i - 1); todos },
+        Err(_) => { todos },
+    }
+}
+
 fn main() {
     println!("Add your todos here!");
 
@@ -8,6 +26,7 @@ fn main() {
     let add_keyword = String::from("ADD");
     let complete_keyword = String::from("COMPLETE");
     let list_keyword = String::from("LIST");
+
     loop {
         println!("either ADD [todo],  COMPLETE [index] or LIST");
 
@@ -19,30 +38,17 @@ fn main() {
         let command = split_string.get(0);
 
         match command {
-            Some(s) if s == &list_keyword => {
-                println!("{:?}", todos);
+            Some(s) if s.trim() == &list_keyword => list_todos(&todos),
+            Some(s) if s.trim() == &add_keyword => add_todo(&mut todos, &split_string),
+            Some(s) if s.trim() == &complete_keyword => {
+                complete_todo(&mut todos, split_string.get(1).unwrap().trim().parse::<usize>());
             },
-            Some(s) if s == &add_keyword => {
-                let mut new_todo = String::new();
-
-                for string in split_string[1..].iter() {
-                  new_todo.push_str(&string.to_string());
-                  new_todo.push_str(" ");
-                }
-
-                todos.push(new_todo);
+            Some(s) => {
+                println!("Missed command: {}", s)
             },
-            Some(s) if s == &complete_keyword => {
-                let idx = match split_string.get(1).unwrap().trim().parse::<usize>() {
-                    Ok(num) =>  num,
-                    Err(e) => { println!("{}", e); continue },
-                };
-
-                todos.remove(idx - 1);
-            },
-            _ => continue,
+            None => println!("Error. "),
         }
 
-        println!("{:?}", todos);
+        list_todos(&todos);
     }
 }
